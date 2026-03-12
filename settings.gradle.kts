@@ -1,1 +1,1 @@
-rootProject.name = "tfjs-scoreboardAPI"
+rootProject.name = "scoreboardAPI"
