@@ -1,4 +1,4 @@
 name: tfjs-scoreboardAPI
 version: '1.0'
-main: net.tfj.ScoreboardAPI.Main
+main: net.tfj.scoreboardAPI.examples.Main
 api-version: '1.21'

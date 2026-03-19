@@ -59,13 +59,18 @@ object ReadMeScoreboard : ScoreboardData(
         EmptyLine,
         AnimatedLineEntry(
             listOf(
-                { "0oo" },
-                { "o0o" },
-                { "oo0" },
-                { "o0o" },
+                StaticLineEntry("0oo"),
+                StaticLineEntry("o0o"),
+                StaticLineEntry("oo0"),
+                StaticLineEntry("o0o"),
             ),
             2,
             100
+        ),
+        OptionalLineEntry(
+            { it.isOp },
+            20,
+            StaticLineEntry("<red>Admin Mode</red>")
         ),
     )
 )
@@ -79,6 +84,7 @@ The library provides several types of line entries, including:
 - **DataLineEntry**: Updates its content based on data, such as player count or time.
 - **AnimatedLineEntry**: Animates the line entry over time.
 - **EmptyLine**: Adds an empty line for spacing.
+- **OptionalLineEntry**: Shows or hides a line based on a condition. 
 
 ### Handling Player Joins
 

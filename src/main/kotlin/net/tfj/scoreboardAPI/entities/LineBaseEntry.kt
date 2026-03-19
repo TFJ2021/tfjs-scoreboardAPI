@@ -32,5 +32,17 @@ abstract class LineBaseEntry {
      * @return true when it should be updated, false otherwise
      * @since 1.0
      */
-    abstract fun shouldUpdate(player: Player): Boolean
+    open fun shouldUpdate(player: Player): Boolean = false
+
+    /**
+     * @return true when the line should be rendered
+     */
+    open fun isVisible(player: Player): Boolean = true
+
+    /**
+     * Increments the tick of this entry and its children
+     */
+    open fun updateTick() {
+        tick++
+    }
 }

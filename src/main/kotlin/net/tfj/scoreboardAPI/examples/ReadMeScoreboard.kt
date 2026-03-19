@@ -17,12 +17,12 @@ object ReadMeScoreboard : ScoreboardData(
         EmptyLine,
         AnimatedLineEntry(
             listOf(
-                { "0oo" },
-                { "o0o" },
-                { "oo0" },
-                { "o0o" },
+                StaticLineEntry("0oo"),
+                StaticLineEntry("o0o"),
+                StaticLineEntry("oo0"),
+                StaticLineEntry("o0o"),
             ),
-            2,
+            5,
             100
         ),
     )

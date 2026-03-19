@@ -2,6 +2,7 @@ package net.tfj.scoreboardAPI
 
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.tfj.scoreboardAPI.entities.LineBaseEntry
+import net.tfj.scoreboardAPI.entities.OptionalLineEntry
 import net.tfj.scoreboardAPI.entities.ScoreboardData
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -29,6 +30,7 @@ class ScoreboardAPI(
     // Static variables
     companion object {
         private var map: HashMap<UUID, ScoreboardData> = hashMapOf()
+        private var visibilityMap: HashMap<UUID, List<Boolean>> = hashMapOf()
         lateinit var miniMessage: MiniMessage
     }
 
@@ -101,13 +103,42 @@ class ScoreboardAPI(
             objective.numberFormat(data.numberFormat)
         }
 
-        val lines = data.lines
+        // Current visibility of optional lines
+        val previousVisibility = visibilityMap[player.uniqueId]
+        val currentVisibility = data.lines.mapIndexed { index, it ->
+            if (it is OptionalLineEntry) {
+                if (forceUpdate || it.shouldCheckVisibility() || previousVisibility == null) {
+                    it.isVisible(player)
+                } else {
+                    previousVisibility[index]
+                }
+            } else {
+                it.isVisible(player)
+            }
+        }
+
+        // Detect visibility change
+        if (previousVisibility != null && previousVisibility != currentVisibility) {
+            // Visibility changed, hard reload
+            visibilityMap[player.uniqueId] = currentVisibility
+            setScoreboard(player, data)
+            return
+        }
+        visibilityMap[player.uniqueId] = currentVisibility
+
+        // Filter lines to only include visible ones
+        val visibleLines = mutableListOf<Pair<LineBaseEntry, Int>>()
+        data.lines.forEachIndexed { index, line ->
+            if (currentVisibility[index]) {
+                visibleLines.add(line to index)
+            }
+        }
 
         // Every line
-        for (i in lines.indices) {
-            val score = lines.size - i - 1
+        for (i in visibleLines.indices) {
+            val score = visibleLines.size - i - 1
             val entryKey = translate(score)
-            val line = lines[i]
+            val (line, _) = visibleLines[i]
             var team = scoreboard.getTeam(entryKey)
 
             // Creates team if not exists
@@ -128,12 +159,16 @@ class ScoreboardAPI(
             // Updates line
             if (forceUpdate || line.shouldUpdate(player)) {
                 team.prefix(line.getText(player))
+                // Also update score just in case it changed due to line filtering
+                objective.getScore(entryKey).score = score
             }
         }
 
-        if (forceUpdate) {
-            for (i in (lines.size + 1)..15) {
-                val entryKey = translate(i)
+        // Cleanup old lines/scores
+        val maxLines = 15
+        for (i in visibleLines.size until maxLines) {
+            val entryKey = translate(i)
+            if (scoreboard.getEntries().contains(entryKey)) {
                 scoreboard.resetScores(entryKey)
                 scoreboard.getTeam(entryKey)?.unregister()
             }
@@ -164,7 +199,7 @@ class ScoreboardAPI(
                     val data = map[player.uniqueId] ?: continue
 
                     data.lines.forEach {
-                        if (processedLines.add(it)) it.tick++
+                        if (processedLines.add(it)) it.updateTick()
                     }
 
                     applyData(player, player.scoreboard, data)

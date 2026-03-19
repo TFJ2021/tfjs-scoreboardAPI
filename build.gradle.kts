@@ -8,7 +8,7 @@ plugins {
 
 // Config
 group = "net.tfj"
-version = "1.1.5"
+version = "1.2.0"
 val targetJavaVersion = 21
 
 // Dependencies
@@ -49,6 +49,16 @@ tasks.processResources {
     filesMatching("plugin.yml") {
         expand(props)
     }
+}
+
+// Shadow configuration
+tasks.shadowJar {
+    archiveFileName.set("ScoreboardAPI-${project.version}.jar")
+}
+
+// RunPaper configuration
+tasks.runServer {
+    minecraftVersion("1.21.11")
 }
 
 // Publishing
