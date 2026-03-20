@@ -24,6 +24,7 @@ import java.util.*
 class ScoreboardAPI(
     val plugin: JavaPlugin,
     val defaultBoard: ScoreboardData,
+    val teamAPI: TeamAPI? = null,
     val miniMessage: MiniMessage = MiniMessage.miniMessage()
 ) {
 
@@ -57,7 +58,9 @@ class ScoreboardAPI(
      */
     fun setScoreboard(player: Player, scoreboardData: ScoreboardData) {
         map[player.uniqueId] = scoreboardData
-        player.scoreboard = createScoreboard(player, scoreboardData)
+        val scoreboard = createScoreboard(player, scoreboardData)
+        player.scoreboard = scoreboard
+        teamAPI?.syncAllToScoreboard(scoreboard)
     }
 
     /**

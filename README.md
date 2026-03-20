@@ -76,6 +76,33 @@ object ReadMeScoreboard : ScoreboardData(
 )
 ```
 
+### Team API
+
+The Team API allows you to manage player nametags (prefix, suffix, color) easily and automatically synchronizes them across all player scoreboards.
+
+#### Creating Team Data
+
+```kotlin
+object AdminTeam : TeamData(
+    priority = 1,
+    id = "admin",
+    displayName = "Admin Team",
+    prefix = "<red>[Admin] </red>",
+    color = NamedTextColor.RED
+)
+```
+
+#### Using Team API
+
+```kotlin
+// Initialize
+val teamAPI = TeamAPI(plugin)
+val scoreboardAPI = ScoreboardAPI(plugin, defaultScoreboard, teamAPI)
+
+// Set team for a player
+teamAPI.setTeam(player, AdminTeam)
+```
+
 ### Customizing Line Entries
 
 The library provides several types of line entries, including:
